@@ -13,43 +13,41 @@ public class Player : MonoBehaviour
     private float rotationSpeed = 3;
 
     [SerializeField]
-    private InputActionReference moveAction;
+    private float clampAngle = 40;
 
     [SerializeField]
     private CharacterController characterController;
 
-    private Vector3 motionVector;
+    private Vector3 motionVector, startingRotation;
 
     private void Awake()
     {
         Instance = this;
-        moveAction.action.performed += OnMove;
     }
 
-    private void OnEnable()
-    {
-        Vector3 move = Vector3.zero;
-        moveAction.action.performed += OnMove;
-    }
-
-
-    private void OnMove(InputAction.CallbackContext callbackContext)
+   
+    private void OnMove(InputValue inputValue)
     {
         Debug.Log("On Move");
-        Vector2 moveDelta = callbackContext.ReadValue<Vector2>();
+        Vector2 moveDelta = inputValue.Get<Vector2>();
         motionVector = transform.right * moveDelta.x + transform.forward * moveDelta.y;
         characterController.Move(motionVector.normalized * speed * Time.deltaTime);
     }
 
-    public void OnLook(Vector2 deltaInput)
+    private void OnLook(InputValue inputValue)
     {
-        Debug.Log("On look");
+        Debug.Log("On Move");
+        Vector2 deltaInput = inputValue.Get<Vector2>();
 
-        transform.Rotate(Vector3.up, deltaInput.x * rotationSpeed * Time.deltaTime);
-    }
+        if (startingRotation == null)
+        {
+            startingRotation = transform.localRotation.eulerAngles;
+        }
 
-    private void OnDisable()
-    {
-        moveAction.action.performed -= OnMove;
-    }
+        startingRotation.x += deltaInput.x * Time.deltaTime * rotationSpeed;
+        startingRotation.y += deltaInput.y * Time.deltaTime * rotationSpeed;
+        startingRotation.y = Mathf.Clamp(startingRotation.y, -clampAngle, clampAngle);
+
+        transform.Rotate(startingRotation);
+    }  
 }
