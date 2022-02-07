@@ -4890,7 +4890,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 9100000, guid: 41ad6253c61b9b244955142343c369ea, type: 2}
     - target: {fileID: 7706473263717844787, guid: bda9b0031f8f38e4e98e7780f1fea9b8,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -5020,7 +5020,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1900078858}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.14
+  m_Radius: 0.25
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -5029,7 +5029,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 1
   m_AutoRepath: 0
-  m_Height: 0.12
+  m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 5
   m_ObstacleAvoidanceType: 4
@@ -5077,7 +5077,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7765043, y: 1}
+    m_SensorSize: {x: 1.778291, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -5118,10 +5118,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.17488098
+  m_Radius: 0.25
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: -0.022537231, y: 1, z: 7.108762e-16}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &1912734646
 GameObject:
   m_ObjectHideFlags: 0
