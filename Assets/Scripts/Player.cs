@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -13,12 +15,19 @@ public class Player : MonoBehaviour
     private float rotationSpeed = 3;
 
     [SerializeField]
-    private float clampAngle = 40;
+    private float topClamp = 40;
+
+    [SerializeField]
+    private float bottomClamp = 40;
 
     [SerializeField]
     private CharacterController characterController;
 
+    [SerializeField]
+    private Transform head;
+
     private Vector3 motionVector, startingRotation;
+    private float cinemachineTargetPitch, rotationVelocity;
 
     private void Awake()
     {
@@ -30,7 +39,12 @@ public class Player : MonoBehaviour
     {
         Debug.Log("On Move");
         Vector2 moveDelta = inputValue.Get<Vector2>();
-        motionVector = transform.right * moveDelta.x + transform.forward * moveDelta.y;
+
+        if (moveDelta != Vector2.zero)
+        {
+            motionVector = transform.right * moveDelta.x + transform.forward * moveDelta.y;
+        }
+
         characterController.Move(motionVector.normalized * speed * Time.deltaTime);
     }
 
@@ -46,8 +60,21 @@ public class Player : MonoBehaviour
 
         startingRotation.x += deltaInput.x * Time.deltaTime * rotationSpeed;
         startingRotation.y += deltaInput.y * Time.deltaTime * rotationSpeed;
-        startingRotation.y = Mathf.Clamp(startingRotation.y, -clampAngle, clampAngle);
+        startingRotation.z = Mathf.Clamp(startingRotation.y, -bottomClamp, bottomClamp);
 
-        transform.Rotate(startingRotation);
-    }  
+        cinemachineTargetPitch += deltaInput.y * rotationSpeed * Time.deltaTime;
+        cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, bottomClamp, topClamp);
+
+        head.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0.0f, 0.0f);
+
+        rotationVelocity = deltaInput.x * rotationSpeed * Time.deltaTime;
+        transform.Rotate(Vector3.up * rotationVelocity);
+    }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
+    }
 }
