@@ -34,11 +34,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
         public void LookRotation(Transform character, Transform camera)
         {
-            float yRot = starterAssetsInputs.look.x * XSensitivity;
-            float xRot = starterAssetsInputs.look.y * YSensitivity;
-
-            m_CharacterTargetRot *= Quaternion.Euler (0f, yRot, 0f);
-            m_CameraTargetRot *= Quaternion.Euler (-xRot, 0f, 0f);
+            m_CharacterTargetRot *= Quaternion.Euler (0f, starterAssetsInputs.look.y, 0f);
+            m_CameraTargetRot *= Quaternion.Euler (-starterAssetsInputs.look.y, 0f, 0f);
 
             if(clampVerticalRotation)
                 m_CameraTargetRot = ClampRotationAroundXAxis (m_CameraTargetRot);
