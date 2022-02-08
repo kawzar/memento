@@ -1,7 +1,5 @@
-using Cysharp.Threading.Tasks;
 
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
@@ -26,48 +24,62 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Transform head;
 
+    [SerializeField]
+    private float smoothInputSpeed = 0.2f;
+
+    [SerializeField]
+    private InputActionReference moveAction;
+
+    [SerializeField]
+    private InputActionReference lookAction;
+
     private Vector3 motionVector, startingRotation;
     private float cinemachineTargetPitch, rotationVelocity;
-
+    private bool isGrounded;
+    private float gravity = 9.8f;
+    private Vector2 currentInputVector, smoothInputVelocity;
+    
     private void Awake()
     {
         Instance = this;
     }
-
-   
-    private void OnMove(InputValue inputValue)
+    
+    private void Update()
     {
-        Debug.Log("On Move");
-        Vector2 moveDelta = inputValue.Get<Vector2>();
+        Vector2 moveInputValue = moveAction.action.ReadValue<Vector2>();
+        currentInputVector = Vector2.SmoothDamp(currentInputVector, moveInputValue, ref smoothInputVelocity, smoothInputSpeed * Time.deltaTime);
+        isGrounded = characterController.isGrounded;
 
-        if (moveDelta != Vector2.zero)
+        if(isGrounded && characterController.velocity.y < 0)
         {
-            motionVector = transform.right * moveDelta.x + transform.forward * moveDelta.y;
+            motionVector.y = 0;
         }
 
-        characterController.Move(motionVector.normalized * speed * Time.deltaTime);
-    }
+        if (moveInputValue != Vector2.zero)
+        {
+            motionVector = new Vector3(currentInputVector.x, motionVector.y, currentInputVector.y) * speed;            
+        }
 
-    private void OnLook(InputValue inputValue)
-    {
-        Debug.Log("On Move");
-        Vector2 deltaInput = inputValue.Get<Vector2>();
+        motionVector.y -= gravity * Time.deltaTime;
+        characterController.Move(motionVector);
+
+        Vector2 lookInput = lookAction.action.ReadValue<Vector2>();
 
         if (startingRotation == null)
         {
             startingRotation = transform.localRotation.eulerAngles;
         }
 
-        startingRotation.x += deltaInput.x * Time.deltaTime * rotationSpeed;
-        startingRotation.y += deltaInput.y * Time.deltaTime * rotationSpeed;
+        startingRotation.x += lookInput.x * Time.deltaTime * rotationSpeed;
+        startingRotation.y += lookInput.y * Time.deltaTime * rotationSpeed;
         startingRotation.z = Mathf.Clamp(startingRotation.y, -bottomClamp, bottomClamp);
 
-        cinemachineTargetPitch += deltaInput.y * rotationSpeed * Time.deltaTime;
+        cinemachineTargetPitch += lookInput.y * rotationSpeed * Time.deltaTime;
         cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, bottomClamp, topClamp);
 
         head.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0.0f, 0.0f);
 
-        rotationVelocity = deltaInput.x * rotationSpeed * Time.deltaTime;
+        rotationVelocity = lookInput.x * rotationSpeed * Time.deltaTime;
         transform.Rotate(Vector3.up * rotationVelocity);
     }
 
