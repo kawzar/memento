@@ -1,3 +1,1 @@
-----
-<iframe src=https://raw.githubusercontent.com/kawzar/memento/main/Release/index.html/>
-----
+<iframe src="Release/index.html" frameborder="0" id="gamebody" width="1280px" height="720px"></iframe>
