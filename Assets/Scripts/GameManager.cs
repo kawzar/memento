@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace Kawzar.Memento.Scripts
 {
@@ -18,7 +19,12 @@ namespace Kawzar.Memento.Scripts
         [SerializeField]
         private GameObject[] flowerPrefab;
 
-        private string getUrl, postUrl, homeUrl;
+        [SerializeField]
+        private Player player;
+
+        public Player Player => player;
+
+        private string getUrl, postUrl;
 
         private IList<Flower> flowers = new List<Flower>();
         private FlowerResult flowersFromJson;
@@ -30,7 +36,6 @@ namespace Kawzar.Memento.Scripts
             serverUrl = serverUrl.Trim();
             getUrl = $"{serverUrl}flowers";
             postUrl = $"{serverUrl}flower";
-            homeUrl = $"{serverUrl}load";
 
             flowers.Clear();
             flowersFromJson = null;
@@ -50,7 +55,6 @@ namespace Kawzar.Memento.Scripts
 
         private IEnumerator GetFlowers()
         {
-            Debug.Log(getUrl);
             using (UnityWebRequest www = UnityWebRequest.Get(getUrl))
             {
                 www.SetRequestHeader("Content-Type", "application/json");
@@ -66,8 +70,8 @@ namespace Kawzar.Memento.Scripts
                     {
                         var result = www.downloadHandler.text;
                         flowersFromJson = JsonUtility.FromJson<FlowerResult>(result);
-                        Debug.Log(flowersFromJson);
                         InitializeFlowers();
+                        player.gameObject.SetActive(true);
                     }
                 }
             }
@@ -107,6 +111,16 @@ namespace Kawzar.Memento.Scripts
                 flowerInstance.SetActive(true);
                 flowers.Add(flower);
             }
+        }
+
+        public void LoadGame()
+        {
+            SceneManager.LoadScene(1);
+        }
+
+        public void LoadMainMenu()
+        {
+            SceneManager.LoadScene(0);
         }
     }
 }

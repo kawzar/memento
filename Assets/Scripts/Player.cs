@@ -7,8 +7,6 @@ namespace Kawzar.Memento.Scripts
 {
     public class Player : MonoBehaviour
     {
-        public static Player Instance { get; private set; }
-
         [SerializeField]
         private Transform rayOrigin;
 
@@ -18,18 +16,24 @@ namespace Kawzar.Memento.Scripts
         [SerializeField]
         private LayerMask interactableLayer;
 
-        private async void Update()
+        private void Update()
         {
-            RaycastHit hit;
+                RaycastHit hit;
 
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                if (Physics.Raycast(rayOrigin.position, rayOrigin.TransformDirection(Vector3.forward), out hit, rayLength, interactableLayer))
+                if (Input.GetKeyDown(KeyCode.E))
                 {
-                    Debug.DrawRay(rayOrigin.position, rayOrigin.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
-                    GameManager.Instance.PlantFlower(hit.point);
+                    if (Physics.Raycast(rayOrigin.position, rayOrigin.TransformDirection(Vector3.forward), out hit, rayLength, interactableLayer))
+                    {
+                        Debug.DrawRay(rayOrigin.position, rayOrigin.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+                        GameManager.Instance.PlantFlower(hit.point);
+                    }
                 }
-            }
+
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    UIManager.Instance.ShowGameplayMenu();
+                }
+
         }
 
     }
