@@ -1,51 +1,56 @@
+
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+namespace Kawzar.Memento.Scripts
 {
-    public static Player Instance { get; private set; }
-
-    [SerializeField]
-    private NavMeshAgent agent;
-
-    [SerializeField]
-    private float speed = 5;
-
-    [SerializeField]
-    private InputActionReference moveAction;
-
-    private Vector3 motionVector;
-
-    private void Awake()
+    public class Player : MonoBehaviour
     {
-        Instance = this;
-        moveAction.action.performed += OnMove;
-    }
+        [SerializeField]
+        private Transform rayOrigin;
 
-    private void OnEnable()
-    {
-        Vector3 move = Vector3.zero;
-        moveAction.action.performed += OnMove;
-    }
+        [SerializeField]
+        private float rayLength;
 
-    private void Update()
-    {
-        if (motionVector != Vector3.zero)
+        [SerializeField]
+        private float plantFlowerCooldown = 3f;
+
+        [SerializeField]
+        private Camera playerCamera;
+
+        [SerializeField]
+        private LayerMask envLayerMask;
+
+        [SerializeField]
+        private TerrainCollider terrain;
+
+        private float lastPlantedFlowerTime;
+        private float elapsedPlantedFlowerTime;
+
+        private void Start()
         {
-            transform.forward = motionVector;
-            agent.Move(motionVector * speed * Time.deltaTime);
+            lastPlantedFlowerTime = 0;
+            elapsedPlantedFlowerTime = 0;
         }
-    }
+        private void Update()
+        {
 
-    private void OnMove(InputAction.CallbackContext callbackContext)
-    {
-        Vector2 moveDelta = callbackContext.ReadValue<Vector2>();
-        motionVector = new Vector3(motionVector.x, transform.position.y, motionVector.y);
-    }
+            Ray ray = new(playerCamera.transform.position, playerCamera.transform.forward);
+            Debug.DrawRay(ray.origin, ray.direction * 10);
+            elapsedPlantedFlowerTime += Time.deltaTime;
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                if (lastPlantedFlowerTime + elapsedPlantedFlowerTime > plantFlowerCooldown && Physics.Raycast(ray, 5f, envLayerMask))
+                {
+                    RaycastHit hit;
+                    Physics.Raycast(ray, out hit, envLayerMask);
+                    Debug.Log(hit);
+                    lastPlantedFlowerTime = Time.time;
+                    elapsedPlantedFlowerTime = 0;
+                    Vector3 position = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+                    GameManager.Instance.PlantFlower(position);
+                }
+            }
+        }
 
-    private void OnDisable()
-    {
-        moveAction.action.performed -= OnMove;
     }
 }
